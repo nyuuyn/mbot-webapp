@@ -1,0 +1,95 @@
+html
+  style(type='text/css').    
+    .buttonRow {
+      width: 33%;
+    }
+    .buttonColumn {
+      width: 33%;
+    }
+    button {
+      margin: auto;
+      max-width: 100%;
+    }
+  head
+    title=title
+    link(href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css', rel='stylesheet')    
+    script(type='text/javascript' src='/jquery/jquery.js')
+    script(type='text/javascript' src='/mqtt/mqtt.js')
+  body
+    script.
+      setInterval(function(){$.get('./data', function(res){
+        $("#distanceP").text(res.distance);
+        $("#lightP").text(res.light);
+      })}, 1000)
+      
+      var publishMove = function(direction){
+        console.log("Requesting move: " + direction)
+        $.ajax({
+          type: "POST",
+          url: "./command",
+          dataType: "json",
+          data: {"direction" : direction}
+        })        
+      };
+      
+      var keydownhandler = function(event) {
+        var keyPressed = String.fromCharCode(event.keyCode)
+        
+        switch(keyPressed) {
+          case "W": publishMove('forward'); break;
+          case "A": publishMove('left'); break;
+          case "D": publishMove('right'); break;
+          case "S": publishMove('back'); break;
+        }
+      }
+      
+      var keyuphandler = function(event) {
+        publishMove('stop');
+      }
+      
+      document.addEventListener("keydown", keydownhandler, false);
+      document.addEventListener("keyup", keyuphandler, false);
+    
+    div.container
+      div.jumbotron
+        h1 mBot Control
+          p          
+          h2 Monitors:
+          table(width="100%", cellpadding="10")
+            tr
+              td
+                div
+                  h3 Distance:
+                  p(id="distanceP") 0
+              td
+                div                  
+              td
+                div
+                  h3 Light:
+                  p(id="lightP") 0
+                  
+         h2 Controls:
+         p
+         table
+           tr(class=buttonRow)
+             td(class=buttonColumn)
+               div
+             td(class=buttonColumn)
+               button(id="forwardButton", type="button", onmousedown="publishMove('forward')", onmouseup="publishMove('stop')") Forward                 
+             td(class=buttonColumn)
+               div
+           tr(class=buttonRow)
+             td(class=buttonColumn)
+               button(id="leftButton", type="button", onmousedown="publishMove('left')", onmouseup="publishMove('stop')") Left
+             td(class=buttonColumn)
+               div                 
+             td(class=buttonColumn)
+               button(id="rightButton", type="button", onmousedown="publishMove('right')", onmouseup="publishMove('stop')") Right
+           tr(class=buttonRow)
+             td(class=buttonColumn)
+               div
+             td(class=buttonColumn)
+               button(id="backwardButton", type="button", onmousedown="publishMove('back')", onmouseup="publishMove('stop')") Backward                 
+             td(class=buttonColumn)
+               div
+          
